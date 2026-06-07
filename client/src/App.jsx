@@ -6,6 +6,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 import CashierDashboard from "./pages/CashierDashboard";
 import NotFound from "./pages/NotFound";
+import InventoryPage from "./pages/InventoryPage";
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -23,6 +24,7 @@ function App() {
       {/* Admin-only routes */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/inventory" element={<InventoryPage />} />
       </Route>
 
       {/* Technician-only routes */}
