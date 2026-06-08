@@ -1,12 +1,9 @@
 const Sale = require("../models/Sale");
 const Product = require("../models/Product");
-const mongoose = require("mongoose");
+const { runWithSession } = require("../utils/dbUtils");
 
 // POST /api/sales  — process a new sale
 const createSale = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const {
       items,
@@ -20,74 +17,73 @@ const createSale = async (req, res) => {
     if (!items || items.length === 0)
       return res.status(400).json({ message: "Cart is empty" });
 
-    // Validate stock and build enriched items
-    const enrichedItems = [];
-    let subtotal = 0;
+    const result = await runWithSession(async (session) => {
+      // Validate stock and build enriched items
+      const enrichedItems = [];
+      let subtotal = 0;
 
-    for (const item of items) {
-      const product = await Product.findById(item.product).session(session);
+      for (const item of items) {
+        const product = await Product.findById(item.product).session(session);
 
-      if (!product || !product.isActive)
-        throw new Error(`Product not found: ${item.product}`);
+        if (!product || !product.isActive)
+          throw new Error(`Product not found: ${item.product}`);
 
-      if (product.quantity < item.quantity)
-        throw new Error(
-          `Insufficient stock for "${product.name}". Available: ${product.quantity}`,
+        if (product.quantity < item.quantity)
+          throw new Error(
+            `Insufficient stock for "${product.name}". Available: ${product.quantity}`,
+          );
+
+        const lineTotal =
+          product.sellingPrice * item.quantity - (item.discount || 0);
+        subtotal += lineTotal;
+
+        enrichedItems.push({
+          product: product._id,
+          name: product.name,
+          sku: product.sku,
+          sellingPrice: product.sellingPrice,
+          costPrice: product.costPrice,
+          quantity: item.quantity,
+          discount: item.discount || 0,
+          lineTotal,
+        });
+
+        // Deduct stock
+        await Product.findByIdAndUpdate(
+          product._id,
+          { $inc: { quantity: -item.quantity } },
+          { session },
         );
+      }
 
-      const lineTotal =
-        product.sellingPrice * item.quantity - (item.discount || 0);
-      subtotal += lineTotal;
+      const total = subtotal - discount;
+      const change =
+        paymentMethod === "cash" && amountPaid ? amountPaid - total : 0;
 
-      enrichedItems.push({
-        product: product._id,
-        name: product.name,
-        sku: product.sku,
-        sellingPrice: product.sellingPrice,
-        costPrice: product.costPrice,
-        quantity: item.quantity,
-        discount: item.discount || 0,
-        lineTotal,
+      const sale = new Sale({
+        items: enrichedItems,
+        subtotal,
+        discount,
+        total,
+        paymentMethod,
+        amountPaid,
+        change: Math.max(0, change),
+        customer,
+        notes,
+        processedBy: req.user._id,
       });
 
-      // Deduct stock atomically
-      await Product.findByIdAndUpdate(
-        product._id,
-        { $inc: { quantity: -item.quantity } },
-        { session },
-      );
-    }
-
-    const total = subtotal - discount;
-    const change =
-      paymentMethod === "cash" && amountPaid ? amountPaid - total : 0;
-
-    const sale = new Sale({
-      items: enrichedItems,
-      subtotal,
-      discount,
-      total,
-      paymentMethod,
-      amountPaid,
-      change: Math.max(0, change),
-      customer,
-      notes,
-      processedBy: req.user._id,
+      await sale.save({ session });
+      return sale;
     });
 
-    await sale.save({ session });
-    await session.commitTransaction();
-
-    const populated = await Sale.findById(sale._id).populate(
+    const populated = await Sale.findById(result._id).populate(
       "processedBy",
       "name",
     );
     res.status(201).json(populated);
   } catch (error) {
-    await session.abortTransaction();
     res.status(400).json({ message: error.message });
-  } finally {
-    session.endSession();
   }
 };
 
@@ -154,31 +150,30 @@ const getSaleById = async (req, res) => {
 
 // POST /api/sales/:id/refund  — full refund, restock items
 const refundSale = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
-    const sale = await Sale.findById(req.params.id).session(session);
-    if (!sale) throw new Error("Sale not found");
-    if (sale.status === "refunded") throw new Error("Sale already refunded");
+    const sale = await runWithSession(async (session) => {
+      const foundSale = await Sale.findById(req.params.id).session(session);
+      if (!foundSale) throw new Error("Sale not found");
+      if (foundSale.status === "refunded")
+        throw new Error("Sale already refunded");
 
-    // Restock all items
-    for (const item of sale.items) {
-      await Product.findByIdAndUpdate(
-        item.product,
-        { $inc: { quantity: item.quantity } },
-        { session },
-      );
-    }
+      // Restock all items
+      for (const item of foundSale.items) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          { $inc: { quantity: item.quantity } },
+          { session },
+        );
+      }
 
-    sale.status = "refunded";
-    await sale.save({ session });
-    await session.commitTransaction();
+      foundSale.status = "refunded";
+      await foundSale.save({ session });
+      return foundSale;
+    });
+
     res.json({ message: "Refund processed", sale });
   } catch (error) {
-    await session.abortTransaction();
     res.status(400).json({ message: error.message });
-  } finally {
-    session.endSession();
   }
 };
 

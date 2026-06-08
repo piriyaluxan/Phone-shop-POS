@@ -6,12 +6,17 @@ import AdminDashboard from "./pages/AdminDashboard";
 import OperatorDashboard from "./pages/OperatorDashboard";
 import InventoryPage from "./pages/InventoryPage";
 import POSPage from "./pages/POSPage";
+import RepairsPage from "./pages/RepairsPage";
+import FinancePage from "./pages/FinancePage";
+import UsersPage from "./pages/UsersPage";
 import NotFound from "./pages/NotFound";
+import { usePageTitle } from "./hooks/usePageTitle";
 
 const getRolePath = (role) => (role === "admin" ? "/admin" : "/operator");
 
 function App() {
   const { user } = useSelector((s) => s.auth);
+  usePageTitle();
 
   return (
     <Routes>
@@ -26,17 +31,22 @@ function App() {
         }
       />
 
-      {/* Admin routes */}
+      {/* ── Admin ── */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/inventory" element={<InventoryPage />} />
         <Route path="/admin/pos" element={<POSPage />} />
+        <Route path="/admin/repairs" element={<RepairsPage />} />
+        <Route path="/admin/finance" element={<FinancePage />} />
+        <Route path="/admin/users" element={<UsersPage />} />
       </Route>
 
-      {/* Retail Operator routes */}
+      {/* ── Retail Operator ── */}
       <Route element={<ProtectedRoute allowedRoles={["retail_operator"]} />}>
         <Route path="/operator" element={<OperatorDashboard />} />
         <Route path="/operator/pos" element={<POSPage />} />
+        <Route path="/operator/repairs" element={<RepairsPage />} />
+        <Route path="/operator/transactions" element={<POSPage />} />
       </Route>
 
       <Route

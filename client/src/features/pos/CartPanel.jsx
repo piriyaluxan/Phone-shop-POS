@@ -34,12 +34,17 @@ const CartPanel = () => {
         </p>
         <div className="grid grid-cols-2 gap-2">
           <input
+            type="text"
+            autoComplete="name"
             placeholder="Name"
             value={customer.name}
             onChange={(e) => dispatch(setCustomer({ name: e.target.value }))}
             className={inputCls}
           />
           <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
             placeholder="Phone"
             value={customer.phone}
             onChange={(e) => dispatch(setCustomer({ phone: e.target.value }))}
@@ -73,6 +78,7 @@ const CartPanel = () => {
                   <p className="font-mono text-xs text-gray-400">{item.sku}</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => dispatch(removeFromCart(item.product))}
                   className="ml-2 w-6 h-6 rounded-lg hover:bg-red-100 text-gray-300 hover:text-red-500 transition-colors flex items-center justify-center text-xs flex-shrink-0"
                 >
@@ -85,6 +91,7 @@ const CartPanel = () => {
                 {/* Qty stepper */}
                 <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
                   <button
+                    type="button"
                     onClick={() =>
                       dispatch(
                         updateQty({
@@ -101,6 +108,7 @@ const CartPanel = () => {
                     {item.quantity}
                   </span>
                   <button
+                    type="button"
                     onClick={() =>
                       dispatch(
                         updateQty({
@@ -129,8 +137,10 @@ const CartPanel = () => {
                   Item discount (LKR)
                 </span>
                 <input
-                  type="number"
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  autoComplete="off"
                   value={item.discount || ""}
                   onChange={(e) =>
                     dispatch(
@@ -157,8 +167,10 @@ const CartPanel = () => {
             Order Discount (LKR)
           </span>
           <input
-            type="number"
-            min="0"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            autoComplete="off"
             value={orderDiscount || ""}
             onChange={(e) => dispatch(setOrderDiscount(Number(e.target.value)))}
             placeholder="0"
@@ -193,6 +205,7 @@ const CartPanel = () => {
 
         {/* Checkout button */}
         <button
+          type="button"
           disabled={cartItems.length === 0}
           onClick={() => dispatch(setScreen("payment"))}
           className="w-full py-3.5 bg-success hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-heading font-bold rounded-xl transition-colors shadow-lg shadow-success/25 text-base mt-1"

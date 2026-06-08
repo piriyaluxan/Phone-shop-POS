@@ -54,6 +54,7 @@ const PaymentScreen = () => {
       {/* Header */}
       <div className="p-5 border-b border-gray-100 flex items-center gap-3">
         <button
+          type="button"
           onClick={() => dispatch(setScreen("pos"))}
           className="p-2 rounded-xl hover:bg-surface transition-colors text-gray-400"
         >
@@ -112,11 +113,13 @@ const PaymentScreen = () => {
                 Amount Received (LKR)
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
                 value={amountPaid}
                 onChange={(e) => dispatch(setAmountPaid(e.target.value))}
                 placeholder={String(total)}
-                min={total}
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 font-mono text-xl font-bold text-dark focus:outline-none focus:border-primary transition-all text-center"
               />
             </div>
@@ -177,6 +180,7 @@ const PaymentScreen = () => {
       {/* Confirm button */}
       <div className="p-5 border-t border-gray-100">
         <button
+          type="button"
           onClick={handlePay}
           disabled={!canPay || loading}
           className="w-full py-4 bg-success hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-heading font-bold rounded-xl transition-colors shadow-xl shadow-success/30 text-lg"

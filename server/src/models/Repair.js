@@ -98,12 +98,11 @@ const repairSchema = new mongoose.Schema(
 );
 
 // Auto-generate job number: REP-YYYYMMDD-XXXX
-repairSchema.pre("save", async function (next) {
-  if (this.jobNumber) return next();
+repairSchema.pre("save", async function () {
+  if (this.jobNumber) return;
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const count = (await mongoose.model("Repair").countDocuments()) + 1;
   this.jobNumber = `REP-${today}-${String(count).padStart(4, "0")}`;
-  next();
 });
 
 module.exports = mongoose.model("Repair", repairSchema);

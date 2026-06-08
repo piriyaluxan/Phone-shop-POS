@@ -108,6 +108,7 @@ const POSPage = () => {
               </div>
               {searchResults.map((p) => (
                 <button
+                  type="button"
                   key={p._id}
                   onClick={() => handleAddProduct(p)}
                   disabled={p.quantity === 0}
@@ -157,6 +158,7 @@ const POSPage = () => {
                   { icon: "🎧", label: "Accessories" },
                 ].map((c) => (
                   <button
+                    type="button"
                     key={c.label}
                     onClick={() => {
                       setQuery(c.label.split(" ")[1]?.toLowerCase() || "");

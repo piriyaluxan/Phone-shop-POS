@@ -57,12 +57,11 @@ const saleSchema = new mongoose.Schema(
 );
 
 // Auto-generate sale number: SL-YYYYMMDD-XXXX
-saleSchema.pre("save", async function (next) {
-  if (this.saleNumber) return next();
+saleSchema.pre("save", async function () {
+  if (this.saleNumber) return;
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const count = (await mongoose.model("Sale").countDocuments()) + 1;
   this.saleNumber = `SL-${today}-${String(count).padStart(4, "0")}`;
-  next();
 });
 
 module.exports = mongoose.model("Sale", saleSchema);
