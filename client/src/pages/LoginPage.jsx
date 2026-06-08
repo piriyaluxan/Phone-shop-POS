@@ -8,7 +8,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { loading, error, user } = useSelector((state) => state.auth);
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ userId: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -62,10 +62,10 @@ const LoginPage = () => {
 
           {/* Role pills */}
           <div className="flex gap-3 mt-10">
-            {["Admin", "Technician", "Cashier"].map((role) => (
+            {["Admin", "Retail Operator"].map((role) => (
               <span
                 key={role}
-                className="px-4 py-2 rounded-full border border-white/20 text-white/80 font-body text-sm backdrop-blur-sm"
+                className="px-4 py-2 rounded-full border border-white/20 text-white/80 font-body text-sm"
               >
                 {role}
               </span>
@@ -111,16 +111,17 @@ const LoginPage = () => {
             {/* Email */}
             <div>
               <label className="block text-dark font-body font-medium text-sm mb-1.5">
-                Email address
+                User ID
               </label>
               <input
-                type="email"
-                name="email"
-                value={form.email}
+                type="text"
+                name="userId"
+                value={form.userId}
                 onChange={handleChange}
-                placeholder="you@phoneshop.com"
+                placeholder="e.g. ADM-001 or OP-001"
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white font-body text-sm text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                autoCapitalize="characters"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white font-mono text-sm text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all uppercase"
               />
             </div>
 
@@ -199,19 +200,18 @@ const LoginPage = () => {
             </p>
             <div className="space-y-1">
               {[
-                { role: "Admin", email: "admin@phoneshop.com" },
-                { role: "Technician", email: "tech@phoneshop.com" },
-                { role: "Cashier", email: "cashier@phoneshop.com" },
-              ].map(({ role, email }) => (
+                { role: "Admin", userId: "ADM-001" },
+                { role: "Retail Operator", userId: "OP-001" },
+              ].map(({ role, userId }) => (
                 <button
                   key={role}
                   type="button"
-                  onClick={() => setForm({ email, password: "admin123" })}
+                  onClick={() => setForm({ userId, password: "admin123" })}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white transition-colors group"
                 >
                   <span className="text-xs font-body text-gray-500 group-hover:text-primary transition-colors">
                     <span className="font-semibold text-dark">{role}</span> —{" "}
-                    {email}
+                    <span className="font-mono">{userId}</span>
                   </span>
                 </button>
               ))}

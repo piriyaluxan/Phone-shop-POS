@@ -11,15 +11,12 @@ const navConfig = {
     { label: "Finance", to: "/admin/finance", icon: "◎" },
     { label: "Users", to: "/admin/users", icon: "◉" },
   ],
-  technician: [
-    { label: "Dashboard", to: "/technician", icon: "◈", end: true },
-    { label: "Repair Queue", to: "/technician/repairs", icon: "⚙" },
-    { label: "Device Lookup", to: "/technician/devices", icon: "▦" },
-  ],
-  cashier: [
-    { label: "Dashboard", to: "/cashier", icon: "◈", end: true },
-    { label: "POS / Billing", to: "/cashier/pos", icon: "⊡" },
-    { label: "Transactions", to: "/cashier/transactions", icon: "◎" },
+  retail_operator: [
+    { label: "Dashboard", to: "/operator", icon: "◈", end: true },
+    { label: "POS / Billing", to: "/operator/pos", icon: "⊡" },
+    { label: "Repair Queue", to: "/operator/repairs", icon: "⚙" },
+    { label: "Transactions", to: "/operator/transactions", icon: "◎" },
+    { label: "Devices", to: "/operator/devices", icon: "▦" },
   ],
 };
 

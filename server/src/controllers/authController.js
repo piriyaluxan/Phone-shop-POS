@@ -32,12 +32,12 @@ const registerUser = async (req, res) => {
 // @access  Public
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { userId, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ userId: userId.toUpperCase() });
 
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid user ID or password" });
     }
 
     if (!user.isActive) {
@@ -46,8 +46,8 @@ const loginUser = async (req, res) => {
 
     res.json({
       _id: user._id,
+      userId: user.userId,
       name: user.name,
-      email: user.email,
       role: user.role,
       token: generateToken(user._id, user.role),
     });

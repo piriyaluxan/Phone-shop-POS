@@ -1,15 +1,26 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { logout } from "../../features/auth/authSlice";
 
 const roleColors = {
   admin: "bg-primary text-white",
-  technician: "bg-success text-white",
-  cashier: "bg-warning text-white",
+  retail_operator: "bg-success text-white",
+};
+
+const roleLabel = {
+  admin: "Admin",
+  retail_operator: "Retail Operator",
 };
 
 const Navbar = ({ onToggleSidebar }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login", { replace: true });
+  };
 
   return (
     <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
@@ -41,9 +52,9 @@ const Navbar = ({ onToggleSidebar }) => {
       {/* Right: role badge + user + logout */}
       <div className="flex items-center gap-3">
         <span
-          className={`px-3 py-1 rounded-full text-xs font-body font-semibold capitalize ${roleColors[user?.role]}`}
+          className={`px-3 py-1 rounded-full text-xs font-body font-semibold ${roleColors[user?.role]}`}
         >
-          {user?.role}
+          {roleLabel[user?.role]}
         </span>
         <div className="hidden sm:block text-right">
           <p className="font-body font-medium text-dark text-sm leading-none">
@@ -59,7 +70,7 @@ const Navbar = ({ onToggleSidebar }) => {
           </span>
         </div>
         <button
-          onClick={() => dispatch(logout())}
+          onClick={handleLogout}
           className="p-2 rounded-lg hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors"
           title="Logout"
         >

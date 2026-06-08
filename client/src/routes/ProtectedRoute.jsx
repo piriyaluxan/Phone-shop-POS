@@ -4,15 +4,17 @@ import { useSelector } from "react-redux";
 const ProtectedRoute = ({ allowedRoles }) => {
   const { user } = useSelector((state) => state.auth);
 
-  // Not logged in → go to login
+  const getRolePath = (role) => {
+    if (role === "admin") return "/admin";
+    if (role === "retail_operator") return "/operator";
+    return "/login";
+  };
+
   if (!user) return <Navigate to="/login" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role))
+    return <Navigate to={getRolePath(user.role)} replace />;
 
-  // Logged in but wrong role → go to their own dashboard
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to={`/${user.role}`} replace />;
-  }
-
-  return <Outlet />; // render the child route
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

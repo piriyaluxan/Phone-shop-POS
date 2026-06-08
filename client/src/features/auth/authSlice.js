@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
 
-// Load persisted user from localStorage on page refresh
 const savedUser = JSON.parse(localStorage.getItem("user")) || null;
 
 export const loginUser = createAsyncThunk(
@@ -9,7 +8,7 @@ export const loginUser = createAsyncThunk(
   async (credentials, thunkAPI) => {
     try {
       const { data } = await axiosInstance.post("/auth/login", credentials);
-      localStorage.setItem("user", JSON.stringify(data)); // persist login
+      localStorage.setItem("user", JSON.stringify(data));
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -42,13 +41,13 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = payload;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(loginUser.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = payload;
       });
   },
 });

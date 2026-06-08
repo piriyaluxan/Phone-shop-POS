@@ -3,55 +3,52 @@ import { useSelector } from "react-redux";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import TechnicianDashboard from "./pages/TechnicianDashboard";
-import CashierDashboard from "./pages/CashierDashboard";
-import NotFound from "./pages/NotFound";
+import OperatorDashboard from "./pages/OperatorDashboard";
 import InventoryPage from "./pages/InventoryPage";
 import POSPage from "./pages/POSPage";
+import NotFound from "./pages/NotFound";
+
+const getRolePath = (role) => (role === "admin" ? "/admin" : "/operator");
 
 function App() {
-  const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector((s) => s.auth);
 
   return (
     <Routes>
-      {/* Public route */}
       <Route
         path="/login"
         element={
-          user ? <Navigate to={`/${user.role}`} replace /> : <LoginPage />
+          user ? (
+            <Navigate to={getRolePath(user.role)} replace />
+          ) : (
+            <LoginPage />
+          )
         }
       />
 
-      {/* Admin-only routes */}
+      {/* Admin routes */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/inventory" element={<InventoryPage />} />
         <Route path="/admin/pos" element={<POSPage />} />
       </Route>
 
-      {/* Technician-only routes */}
-      <Route element={<ProtectedRoute allowedRoles={["technician"]} />}>
-        <Route path="/technician" element={<TechnicianDashboard />} />
+      {/* Retail Operator routes */}
+      <Route element={<ProtectedRoute allowedRoles={["retail_operator"]} />}>
+        <Route path="/operator" element={<OperatorDashboard />} />
+        <Route path="/operator/pos" element={<POSPage />} />
       </Route>
 
-      {/* Cashier-only routes */}
-      <Route element={<ProtectedRoute allowedRoles={["cashier"]} />}>
-        <Route path="/cashier" element={<CashierDashboard />} />
-        <Route path="/cashier/pos" element={<POSPage />} />
-      </Route>
-
-      {/* Root redirect */}
       <Route
         path="/"
         element={
           user ? (
-            <Navigate to={`/${user.role}`} replace />
+            <Navigate to={getRolePath(user.role)} replace />
           ) : (
             <Navigate to="/login" replace />
           )
         }
       />
-
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
